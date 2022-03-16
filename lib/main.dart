@@ -1,4 +1,3 @@
-
 import 'package:filters_fc/assignment_filter.dart';
 import 'package:filters_fc/home_page.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      initialRoute: '/assignment_filter',
+      initialRoute: '/',
       routes: {
         '/': (context) => const HomePage(),
         '/assignment_filter': (context) => const AssignmentFilter(),

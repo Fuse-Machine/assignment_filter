@@ -8,12 +8,10 @@ class AssignmentFilter extends StatefulWidget {
 }
 
 class _AssignmentFilterState extends State<AssignmentFilter> {
-  final List<String> _applyFilterCourses = [];
-
   String _filterStatusValue = 'All';
   String _filterTypeValue = 'All';
   List<String> filterStatus = [
-    'All',
+    //'All',
     'Submitted',
     'Not Submitted',
     'Over Due',
@@ -25,12 +23,12 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
   ];
 
   List<String> filterType = [
-    'All',
+    //'All',
     'Open Assignment',
   ];
 
+  //final List<String> _checkedFilterCourse = [];
   final List<Map> _filterByCourse = [
-    {'name': 'All', 'isChecked': false},
     {'name': 'Effective Communication level 1 - Section A', 'isChecked': false},
     {
       'name': 'Data Structure and Algorithm DSA - Section A',
@@ -38,6 +36,14 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
     },
     {'name': 'FM Proctoring Exam - Section A', 'isChecked': false},
   ];
+
+  @override
+  void initState() {
+    _filterByCourse.insert(0, {'name': 'All', 'isChecked': false});
+    filterType.insert(0, 'All');
+    filterStatus.insert(0, 'All');
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +73,6 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -81,8 +86,6 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
                         ),
                       ),
                       _radioWidgetFilterStatus(),
-                      //_radioWidget(filterDecision: 'status'),
-                      Text('Filter Status Value: .$_filterStatusValue'),
                     ],
                   ),
                   Column(
@@ -97,9 +100,7 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
                               fontSize: 20, fontWeight: FontWeight.w500),
                         ),
                       ),
-                      //_radioWidget(filterDecision: 'type'),
                       _radioWidgetFilterType(),
-                      Text('Filter Type Value: .$_filterTypeValue'),
                     ],
                   ),
                   Column(
@@ -117,28 +118,14 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
                     ],
                   ),
                   _checkBoxWidgetCourse(),
-                  Column(
-                    children: _filterByCourse.map((courses) {
-                      if (courses["isChecked"] == true) {
-                        _applyFilterCourses.add(courses['name']);
-                        return Column(
-                          children: [
-                            Text(courses['name']),
-                          ],
-                        );
-                      }
-
-                      return Container();
-                    }).toList(),
-                  ),
                 ],
               ),
             ),
           ),
           Container(
             padding: const EdgeInsets.all(12),
-            height: 75,
-            color: Colors.grey[400],
+            height: 65,
+            color: const Color.fromARGB(255, 247, 233, 233),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -149,7 +136,7 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
                   child: const Text(
                     'Clear All',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                     ),
                   ),
                 ),
@@ -160,7 +147,10 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
 
                     //_updateFilterList();
                   },
-                  child: const Text('Apply'),
+                  child: const Text(
+                    'Apply',
+                    style: TextStyle(fontSize: 20),
+                  ),
                 ),
               ],
             ),
@@ -221,53 +211,54 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
             controlAffinity: ListTileControlAffinity.leading,
             onChanged: (newValue) {
               setState(() {
-                //setting 'All' to true if all other are true;
+                courses['isChecked'] = newValue;
 
-                //Setting all true if All is checked true
-                if (courses['name'] == 'All') {
-                  for (var element in _filterByCourse) {
-                    element['isChecked'] = newValue;
+                for (int i = 1; i < _filterByCourse.length; i++) {
+                  if (_filterByCourse[i]['isChecked'] == false) {
+                    _filterByCourse[0]['isChecked'] = false;
+
+                    break;
+                  } else {
+                    _filterByCourse[0]['isChecked'] = true;
                   }
                 }
-
-                //if any value other that all is false ...all is also false
-                if (newValue == false) {
-                  for (var element in _filterByCourse) {
-                    if (element['name'].toString() == 'All') {
-                      element['isChecked'] = false;
-                    }
-                  }
-                }
-
-                //setting course to new value either true or false
-                courses["isChecked"] = newValue;
               });
+
+              //Setting all true if All is checked true
+              if (courses['name'] == 'All') {
+                for (var element in _filterByCourse) {
+                  element['isChecked'] = newValue;
+                }
+              }
+              //
             });
       }).toList(),
     );
   }
 
   showAlertDialog(BuildContext context) {
-    // set up the button
-
-    // set up the AlertDialog
     AlertDialog alert = AlertDialog(
-      title: const Text("My title"),
-      content: Column(
-        children: [
-          Text('Filter Type: .$_filterTypeValue'),
-          Text('Filter Type: .$_filterStatusValue'),
-          Text('Filter Courses.$_applyFilterCourses'),
-        ],
-      ),
+      title: const Text("My Filters"),
+      content: Column(mainAxisSize: MainAxisSize.min, children: [
+        Text('Filter Status: \n$_filterStatusValue'),
+        Text('Filter Type: \n' + _filterTypeValue),
+        const Text('Filter Course:'),
+        Column(
+          children: _filterByCourse.map((courses) {
+            if (courses['isChecked'] == true) {
+              return Text(courses['name']);
+            }
+            return Container();
+          }).toList(),
+        )
+      ]),
 
       //const Text("This is my message."),
       actions: [
         TextButton(
-          onPressed: () =>{
+          onPressed: () => {
             Navigator.pop(context, 'OK'),
             _clearAll(),
-
           },
           child: const Text('Ok'),
         ),
@@ -285,50 +276,12 @@ class _AssignmentFilterState extends State<AssignmentFilter> {
 
   _clearAll() {
     setState(() {
-    _filterStatusValue = 'All';
+      _filterStatusValue = 'All';
       _filterTypeValue = 'All';
+
       for (var element in _filterByCourse) {
         element['isChecked'] = false;
-      }  
+      }
     });
-    
   }
-
-  // void _updateFilterList() {
-  //   _applyFilter.add(_filterTypeValue);
-  //   _applyFilter.add(_filterStatusValue);
-  //   _filterByCourse.map((courses) {
-  //     if (courses["isChecked"] == true) {
-  //       _applyFilter.add(courses['name']);
-  //     }
-  //   }).toList();
-  //   log(_applyFilter.toString());
-  // }
-
-  //Radio button for both type and status
-  //Error: Only one is selectable
-  // _radioWidget({required String filterDecision}) {
-  //   log(filterDecision);
-  //   return Column(
-  //       children: ((filterDecision == 'type') ? filterType : filterStatus)
-  //           .map(
-  //             (filter) => ListTile(
-  //               leading: Radio<String>(
-  //                 groupValue: (filterDecision == 'type')
-  //                     ? _filterTypeValue
-  //                     : _filterStatusValue,
-  //                 value: filter,
-  //                 onChanged: (value) {
-  //                   setState(() {
-  //                     (filterDecision == 'type')
-  //                         ? _filterTypeValue
-  //                         : _filterStatusValue = value!;
-  //                   });
-  //                 },
-  //               ),
-  //               title: Text(filter),
-  //             ),
-  //           )
-  //           .toList());
-  // }
 }
